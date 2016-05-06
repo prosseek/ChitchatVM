@@ -1,10 +1,16 @@
-name := ""
+organization := "chitchatvm"
+
+name := "chitchatvm"
 
 version := "0.1"
 
 scalaVersion := "2.11.8"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % "2.2.6" % "test",
+  "chitchatsummary" %% "chitchatsummary" % "0.1"
+)
+
 target in Compile in doc := baseDirectory.value / "doc/api"
 
 // local library dependency
