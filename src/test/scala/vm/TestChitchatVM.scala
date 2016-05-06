@@ -28,6 +28,13 @@ class TestChitchatVM extends FunSuite {
     val res = vm.eval(code, null)
     assert(res == 90)
   }
+  test("function call stack test") {
+    val r = Reader(testsourcesDir + "function_call2.asm")
+    val vm = new ChitchatVM
+    val code = r.assemble()
+    val res = vm.eval(code, null)
+    assert(res == 90)
+  }
 
   test("if test") {
     val r = Reader(testsourcesDir + "if.asm")

@@ -2,9 +2,12 @@ package vm
 
 import summary.Summary
 
+import scala.util.control.Breaks._
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
-class ChitchatVM(val summary:Summary = null) {
+class ChitchatVM(val summary:Summary = null)
+          extends StackHelper with MacroCommand {
   // stack
   val stack = new Stack()
 
@@ -13,16 +16,6 @@ class ChitchatVM(val summary:Summary = null) {
   var temp:Any = -1
 
   def process(cmd: Seq[String]) = {
-    def getBinaryIntValues() = {
-      val val1:Int = stack.pop().asInstanceOf[Int]
-      val val2:Int = stack.pop().asInstanceOf[Int]
-      (val1, val2)
-    }
-    def getBinaryDoubleValues() = {
-      val val1:Double = stack.pop().asInstanceOf[Double]
-      val val2:Double = stack.pop().asInstanceOf[Double]
-      (val1, val2)
-    }
     /**
       * Returns the register value with firstCommand input as name
       * When there is no matching name, the input is returned.
@@ -33,7 +26,7 @@ class ChitchatVM(val summary:Summary = null) {
       * @param firstCommand
       * @return
       */
-    def registerValue(firstCommand:String) = {
+    def registerValueToString(firstCommand:String) = {
       firstCommand match {
         case "temp" => temp.toString
         case "bp" => stack.bp.toString
@@ -52,15 +45,10 @@ class ChitchatVM(val summary:Summary = null) {
       }
     }
 
-    def link() = {
-      stack.push(stack.bp)
-      stack.bp = (stack.sp - 1) // TOS is sp - 1, and it's also bp
-    }
-
     cmd(0) match {
       // stack command
       case "push" => {
-        stack.pushFromParameter(registerValue(cmd(1)))
+        stack.pushFromParameter(registerValueToString(cmd(1)))
       }
       case "pop" => {
         val res = stack.pop()
@@ -69,8 +57,8 @@ class ChitchatVM(val summary:Summary = null) {
         }
       }
       // load a location in a stack into tos
-      case "load" => {
-        val register_value = registerValue(cmd(1))
+      case x if (x == "load" || x == "store") => {
+        val register_value = registerValueToString(cmd(1))
         var address = register_value.toInt
 
         // ex) load bp - 3
@@ -82,29 +70,18 @@ class ChitchatVM(val summary:Summary = null) {
             case _ => throw new RuntimeException(s"only +/- operator allowed not ${operator}")
           }
         }
-        val value = stack.stack(address)
-        stack.push(value)
-      }
-      // store tos into the location
-      // ex) store bp + 3
-      case "store" => {
-        val register_value = registerValue(cmd(1))
-        var address = register_value.toInt
-
-        // ex) store bp - 3
-        if (cmd.length == 4) {
-          val operator = cmd(2)
-          operator match {
-            case "+" => address += cmd(3).toInt
-            case "-" => address -= cmd(3).toInt
-            case _ => throw new RuntimeException(s"only +/- operator allowed not ${operator}")
-          }
+        if (x == "store") {
+          val value = stack.pop()
+          stack.stack(address) = value
         }
-        val value = stack.pop()
-        stack.stack(address) = value
+        else {
+          val value = stack.stack(address)
+          stack.push(value)
+        }
       }
+
       case "link" => {
-        link()
+        link(stack)
       }
 
       // macro level
@@ -117,10 +94,33 @@ class ChitchatVM(val summary:Summary = null) {
         stack.push(0)
         // 2. push the parameters
         params foreach {
-          p => stack.pushFromParameter(registerValue(p))
+          p => stack.pushFromParameter(registerValueToString(p))
         }
         // 3. link
-        link()
+        link(stack)
+        // 4. push next ip
+        stack.push(ip + 1)
+        // 5. jmp to the location
+        ip = function_location - 1 // later 1 is added
+      }
+
+      case "function_call_stack" => {
+        val function_location = cmd(1).toInt
+        val param_count = cmd(2).toInt
+
+        // get all the parameters from stack
+        val params = ListBuffer[String]()
+        for (i <- 0 until param_count) {
+          params += stack.pop().toString()
+        }
+        // 1. reserve return value
+        stack.push(0)
+        // 2. push the parameters
+        params foreach {
+          p => stack.pushFromParameter(registerValueToString(p))
+        }
+        // 3. link
+        link(stack)
         // 4. push next ip
         stack.push(ip + 1)
         // 5. jmp to the location
@@ -129,20 +129,12 @@ class ChitchatVM(val summary:Summary = null) {
 
       // return 5 <- number of params
       case "return" => {
-        val number_of_params = cmd(1).toInt
+        ip = return_from_function(cmd = cmd, stack = stack)
+      }
 
-        // 1. copy the return value in temp to the RV
-        val rv = stack.bp - (number_of_params + 1)
-        temp = stack.pop
-        stack.stack(rv) = temp
-        // 2. get return address
-        val return_address = stack.pop.asInstanceOf[Int]
-        // 3. retore bp
-        stack.bp = stack.pop().asInstanceOf[Int]
-        // 4. pop number_of_params times
-        for (i <- 0 until number_of_params)
-          stack.pop()
-        ip = return_address - 1 // later 1 is added
+      // all elements exists in summary
+      case "allexists" => {
+        allexists(cmd = cmd, summary = summary, stack = stack)
       }
 
       // summary
@@ -153,19 +145,21 @@ class ChitchatVM(val summary:Summary = null) {
           if (value.isEmpty) stack.push(null)
           else stack.push(value.get)
         }
+        else // maybe return something else
+          stack.push(null)
       }
 
       // control
       // unconditional jump
       case "jmp" => {
-        val address = registerValue(cmd(1)).toInt
+        val address = registerValueToString(cmd(1)).toInt
         ip = address - 1 // ip + 1 is applied at the end, so 1 should be subtracted
       }
       // load from stack and jump if it is false
       case "jfalse" => {
-        val result = stack.pop().asInstanceOf[Int]
-        if (result == 0) {
-          val address = registerValue(cmd(1)).toInt
+        val result = stack.pop().asInstanceOf[Boolean]
+        if (result == false) {
+          val address = registerValueToString(cmd(1)).toInt
           ip = address - 1
         }
       }
@@ -173,74 +167,52 @@ class ChitchatVM(val summary:Summary = null) {
       case "cmp" => {
         val val1 = stack.pop()
         val val2= stack.pop()
-        if (val1 == val2) stack.push(1)
-        else stack.push(0)
+        stack.push(val1 == val2)
       }
       // Work as integer
       // X (val2) < Y (val1)
-      case "less" => {
-        val val1 = stack.pop().asInstanceOf[Int]
-        val val2= stack.pop().asInstanceOf[Int]
-        if (val2 < val1) stack.push(1)
-        else stack.push(0)
-      }
-      case "leq" => {
-        val val1 = stack.pop().asInstanceOf[Int]
-        val val2= stack.pop().asInstanceOf[Int]
-        if (val2 <= val1) stack.push(1)
-        else stack.push(0)
-      }
-      case "greater" => {
-        val val1 = stack.pop().asInstanceOf[Int]
-        val val2= stack.pop().asInstanceOf[Int]
-        if (val2 > val1) stack.push(1)
-        else stack.push(0)
-      }
-      case "geq" => {
-        val val1 = stack.pop().asInstanceOf[Int]
-        val val2= stack.pop().asInstanceOf[Int]
-        if (val2 >= val1) stack.push(1)
-        else stack.push(0)
+      case x if (x == "less" || x == "leq" || x == "greater" || x == "geq") => {
+        val val2 = stack.pop().asInstanceOf[Int]
+        val val1= stack.pop().asInstanceOf[Int]
+        var result = false
+        x match  {
+          case "less"    => if (val1 < val2) result = true
+          case "leq"     => if (val1 <= val2) result = true
+          case "greater" => if (val1 > val2) result = true
+          case "geq"     => if (val1 >= val2) result = true
+        }
+        stack.push(result)
       }
 
       // integer expression
-      case "iadd" => {
-        val (val1, val2) = getBinaryIntValues()
-        stack.push(val1 + val2)
+      case x if (x == "iadd" || x == "isub" || x == "imul" || x == "idiv") => {
+        val (val1, val2) = getBinaryIntValues(stack)
+        x match {
+          case "iadd" => stack.push(val1 + val2)
+          case "isub" => stack.push(val1 - val2)
+          case "imul" => stack.push(val1 * val2)
+          case "idiv" => {
+            if (val2 == 0) throw new RuntimeException(s"Divide by zero error")
+            stack.push(val1 / val2)
+          }
+        }
       }
-      case "isub" => {
-        val (val1, val2) = getBinaryIntValues()
-        stack.push(val1 - val2)
+      // double expression
+      case x if (x == "fadd" || x == "fsub" || x == "fmul" || x == "fdiv") => {
+        val (val1, val2) = getBinaryDoubleValues(stack)
+        x match {
+          case "fadd" => stack.push(val1 + val2)
+          case "fsub" => stack.push(val1 - val2)
+          case "fmul" => stack.push(val1 * val2)
+          case "fdiv" => {
+            if (val2 == 0.0) throw new RuntimeException(s"Divide by zero error")
+            stack.push(val1 / val2)
+          }
+        }
       }
-      case "imul" => {
-        val (val1, val2) = getBinaryIntValues()
-        stack.push(val1 * val2)
-      }
-      case "idiv" => {
-        val (val1, val2) = getBinaryIntValues()
-        stack.push(val1 / val2)
-      }
-      // double
-      case "fadd" => {
-        val (val1, val2) = getBinaryDoubleValues()
-        stack.push(val1 + val2)
-      }
-      case "fsub" => {
-        val (val1, val2) = getBinaryDoubleValues()
-        stack.push(val1 - val2)
-      }
-      case "fmul" => {
-        val (val1, val2) = getBinaryDoubleValues()
-        stack.push(val1 * val2)
-      }
-      case "fdiv" => {
-        val (val1, val2) = getBinaryDoubleValues()
-        stack.push(val1 / val2)
-      }
-
       // utility - print
       case "print" => {
-        println(registerValue(cmd(1)))
+        println(registerValueToString(cmd(1)))
       }
     }
     ip += 1 // next command including the jmp command
