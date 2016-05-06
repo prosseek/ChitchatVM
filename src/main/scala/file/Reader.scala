@@ -66,6 +66,7 @@ case class Reader(filePath:String = null) {
     sourceCode.split("\n(\r)?").map(_.trim) foreach {
       case s if (s.startsWith("#")) => code // ignore comment
       case s if (s.contains(":")) => labelToLine += (s.replace(":", "") -> count)
+      case s if s.length == 0 => code // ignore blank line
       case s => code += s; count += 1
     }
 

@@ -29,6 +29,20 @@ class TestChitchatVM extends FunSuite {
     assert(res == 90)
   }
 
+  test("if test") {
+    val r = Reader(testsourcesDir + "if.asm")
+    val vm = new ChitchatVM
+    val code = r.assemble()
+    val res = vm.eval(code, null)
+  }
+
+  test("loop test") {
+    val r = Reader(testsourcesDir + "loop.asm")
+    val vm = new ChitchatVM
+    val code = r.assemble()
+    val res = vm.eval(code, null)
+  }
+
   test("test split") {
     val vm = new ChitchatVM
 

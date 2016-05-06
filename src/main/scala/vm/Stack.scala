@@ -49,6 +49,7 @@ class Stack {
     if (sp <= 0) throw new RuntimeException(s"Stack empty - not able to pop")
     sp -= 1
     stack(sp)
+    stack.remove(sp)
   }
 
   def tos = {

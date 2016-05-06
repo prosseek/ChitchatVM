@@ -85,6 +85,24 @@ class ChitchatVM(val summary:Summary = null) {
         val value = stack.stack(address)
         stack.push(value)
       }
+      // store tos into the location
+      // ex) store bp + 3
+      case "store" => {
+        val register_value = registerValue(cmd(1))
+        var address = register_value.toInt
+
+        // ex) store bp - 3
+        if (cmd.length == 4) {
+          val operator = cmd(2)
+          operator match {
+            case "+" => address += cmd(3).toInt
+            case "-" => address -= cmd(3).toInt
+            case _ => throw new RuntimeException(s"only +/- operator allowed not ${operator}")
+          }
+        }
+        val value = stack.pop()
+        stack.stack(address) = value
+      }
       case "link" => {
         link()
       }
@@ -138,9 +156,18 @@ class ChitchatVM(val summary:Summary = null) {
       }
 
       // control
+      // unconditional jump
       case "jmp" => {
         val address = registerValue(cmd(1)).toInt
         ip = address - 1 // ip + 1 is applied at the end, so 1 should be subtracted
+      }
+      // load from stack and jump if it is false
+      case "jfalse" => {
+        val result = stack.pop().asInstanceOf[Int]
+        if (result == 0) {
+          val address = registerValue(cmd(1)).toInt
+          ip = address - 1
+        }
       }
       // Expression
       case "cmp" => {
@@ -149,6 +176,33 @@ class ChitchatVM(val summary:Summary = null) {
         if (val1 == val2) stack.push(1)
         else stack.push(0)
       }
+      // Work as integer
+      // X (val2) < Y (val1)
+      case "less" => {
+        val val1 = stack.pop().asInstanceOf[Int]
+        val val2= stack.pop().asInstanceOf[Int]
+        if (val2 < val1) stack.push(1)
+        else stack.push(0)
+      }
+      case "leq" => {
+        val val1 = stack.pop().asInstanceOf[Int]
+        val val2= stack.pop().asInstanceOf[Int]
+        if (val2 <= val1) stack.push(1)
+        else stack.push(0)
+      }
+      case "greater" => {
+        val val1 = stack.pop().asInstanceOf[Int]
+        val val2= stack.pop().asInstanceOf[Int]
+        if (val2 > val1) stack.push(1)
+        else stack.push(0)
+      }
+      case "geq" => {
+        val val1 = stack.pop().asInstanceOf[Int]
+        val val2= stack.pop().asInstanceOf[Int]
+        if (val2 >= val1) stack.push(1)
+        else stack.push(0)
+      }
+
       // integer expression
       case "iadd" => {
         val (val1, val2) = getBinaryIntValues()
@@ -246,7 +300,8 @@ class ChitchatVM(val summary:Summary = null) {
         proceed = false
       else {
         val c = code(ip)
-        if (c.startsWith("stop")) proceed = false
+        if (c.startsWith("stop"))
+          proceed = false
         else evalCommand(c, summary)
       }
     }

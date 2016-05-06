@@ -1,3 +1,6 @@
+    function_call MAIN
+    stop
+MAIN:
     push 101
     push 202
     iadd
@@ -5,4 +8,5 @@
     print temp
     print "stop the program and bye"
     push temp
-    stop
+
+    return 0
