@@ -64,15 +64,14 @@ case class Reader(filePath:String = null) {
     // from input to intermediate
     var count = 0
     sourceCode.split("\n(\r)?").map(_.trim) foreach {
-      case s if (s.startsWith("#")) => code // ignore comment
-      case s if (s.contains(":")) => labelToLine += (s.replace(":", "") -> count)
+      case s if s.startsWith("#") => code // ignore comment
+      case s if s.contains(":") => labelToLine += (s.replace(":", "") -> count)
       case s if s.length == 0 => code // ignore blank line
       case s => code += s; count += 1
     }
 
     // resolve the label
     val iter1 = (code map {c => replaceLabel(c)})
-    // you need to run the code once more to resolve forward referencing
-    (iter1 map {c => replaceLabel(c)}).toList
+    iter1.toList
   }
 }
