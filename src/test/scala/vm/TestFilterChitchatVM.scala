@@ -50,4 +50,12 @@ class TestFilterChitchatVM extends FunSuite {
     val res = vm.eval(code, null)
     assert(res == true)
   }
+
+  test("situational filter test") {
+    val r = Reader(testsourcesDir + "situational.asm")
+    val code = r.assemble()
+
+    val vm = new ChitchatVM(fbf)
+    val res = vm.eval(code, null)
+  }
 }

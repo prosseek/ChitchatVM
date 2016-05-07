@@ -9,6 +9,23 @@ import scala.util.control.Breaks._
   */
 trait MacroCommand {
 
+  def processAbs(cmd:Seq[String], stack:Stack) = {
+    cmd(1).toString() match {
+      /*
+        read latitude
+        read longitude
+        push [30, 25, 1, 74]
+        push [-97, 47, 21, 83]
+       */
+      case "location" => {
+        val lat2 = stack.pop()
+        val long2 = stack.pop()
+        val lat1 = stack.pop()
+        val long1 = stack.pop()
+      }
+    }
+  }
+
   def return_from_function(cmd:Seq[String], stack:Stack) = {
     val number_of_params = cmd(1).toInt
 

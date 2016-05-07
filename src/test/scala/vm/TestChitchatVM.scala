@@ -49,12 +49,4 @@ class TestChitchatVM extends FunSuite {
     val code = r.assemble()
     val res = vm.eval(code, null)
   }
-
-  test("test split") {
-    val vm = new ChitchatVM
-
-    assert(vm.split("print   A B C ").toString == "List(print, A, B, C)")
-    assert(vm.split("print \"Hello, world?? good?\"").toString == "List(print, Hello, world?? good?)")
-  }
-
 }

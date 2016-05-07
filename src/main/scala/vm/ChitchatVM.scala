@@ -48,7 +48,13 @@ class ChitchatVM(val summary:Summary = null)
     cmd(0) match {
       // stack command
       case "push" => {
-        stack.pushFromParameter(registerValueToString(cmd(1)))
+        // in encoding, the value should only be intgers
+        if (cmd(1).contains(":")) {
+          val result = cmd(1).split(":").map(_.trim).map(_.toInt).toList
+          stack.push(result)
+        }
+        else
+          stack.pushFromParameter(registerValueToString(cmd(1)))
       }
       case "pop" => {
         val res = stack.pop()
@@ -194,6 +200,11 @@ class ChitchatVM(val summary:Summary = null)
         }
       }
       // Expression
+      case "abs" => {
+        processAbs(cmd = cmd, stack = stack)
+
+      }
+
       case x if (x == "and" || x == "or") => {
         val count = if (cmd.size < 1) 2 else cmd(1).toInt
         val result = false
@@ -224,6 +235,19 @@ class ChitchatVM(val summary:Summary = null)
           case "leq"     => if (val1 <= val2) result = true
           case "greater" => if (val1 > val2) result = true
           case "geq"     => if (val1 >= val2) result = true
+        }
+        stack.push(result)
+      }
+
+      case x if (x == "fless" || x == "fleq" || x == "fgreater" || x == "fgeq") => {
+        val val2 = stack.pop().asInstanceOf[Double]
+        val val1= stack.pop().asInstanceOf[Double]
+        var result = false
+        x match  {
+          case "fless"    => if (val1 < val2) result = true
+          case "fleq"     => if (val1 <= val2) result = true
+          case "fgreater" => if (val1 > val2) result = true
+          case "fgeq"     => if (val1 >= val2) result = true
         }
         stack.push(result)
       }
@@ -278,15 +302,30 @@ class ChitchatVM(val summary:Summary = null)
     * @param code
     */
   def split(code:String): List[String] = {
-    val regex = "([^\"]+)(\"([^\"]+)\")?".r
-    val regex(content, stringPattern, stringContent) = code
 
-    if (stringPattern != null) {
-      // println(content)
-      List(content.trim(), stringContent)
+    // 1. find the command
+    val splittedCode = code.trim.split("\\s+").toList
+    val command = splittedCode(0)
+
+    if (splittedCode.size <= 1) {
+      return splittedCode
+    }
+
+    // when there are more than two inputs
+    // 2. check if this is a string
+    val params = code.replace(command, "").trim
+
+    if (params.startsWith("\"")) {
+      // string format
+      return List(command, params.replaceAll("\"", ""))
+    }
+    else if (params.startsWith("[")) {
+      val step1 = params.replace("[","").replace("]","")
+      val result = step1.split(",").toList.mkString(":")
+      return List(command, result)
     }
     else {
-      code.split("\\s+").toList
+      return code.split("\\s+").toList
     }
   }
 
