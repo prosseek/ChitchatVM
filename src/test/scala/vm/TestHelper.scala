@@ -2,7 +2,7 @@ package vm
 
 import org.scalatest.FunSuite
 
-class TestChitchatVMUtiltities extends FunSuite {
+class TestHelper extends FunSuite {
 
   test("test split") {
     val vm = new ChitchatVM

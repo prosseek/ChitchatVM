@@ -15,24 +15,26 @@ case class Reader(filePath:String = null) {
     * The comments and label are removed, and only the code is returned with
     * label names resolved.
     *
-    * {{{
-    * Input:
-    * # This is a test
-    * push 10
-    * push 20
-    * LABEL:
-    * add
-    * jmp LABEL
-    * LABEL2:
-    * jmpc LABEL2
-    **
-    *Intermediate output:
-    *Map(LABEL2 -> 4, LABEL -> 2)
-    *List(push 10, push 20, add, jmp LABEL, jmpc LABEL2)
-    **
-    *Final output:
-    *List(push 10, push 20, add, jmp 2, jmpc 4)
-    * }}}
+    {{{
+       Input:
+       # This is a test
+       push 10
+       push 20
+       LABEL:
+       add
+       jmp LABEL
+       LABEL2:
+       jmpc LABEL2
+
+    Intermediate output:
+
+       Map(LABEL2 -> 4, LABEL -> 2)
+       List(push 10, push 20, add, jmp LABEL, jmpc LABEL2)
+
+    Final output:
+
+       List(push 10, push 20, add, jmp 2, jmpc 4)
+    }}}
     *
     * @param src
     * @return

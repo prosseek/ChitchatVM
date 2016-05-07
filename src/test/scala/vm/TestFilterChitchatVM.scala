@@ -57,5 +57,6 @@ class TestFilterChitchatVM extends FunSuite {
 
     val vm = new ChitchatVM(fbf)
     val res = vm.eval(code, null)
+    assert(res == false)
   }
 }

@@ -64,7 +64,7 @@ object Repl extends App {
           vm.evalCommand(ln, null)
         }
         catch {
-          case e => println(e)
+          case e : Throwable => println(e)
         }
       }
     }

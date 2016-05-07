@@ -1,4 +1,6 @@
-    function_call_stack nearCityPark 0
+    f2 nearCityPark 0
+END:
+    stop
 nearCityPark:
     read latitude
     jmpnull END
@@ -8,7 +10,5 @@ nearCityPark:
     push [-97, 47, 21, 83]
     abs location
     push 5000.0
-    fgeq
-END:
-    stop
-
+    fleq
+    r 0

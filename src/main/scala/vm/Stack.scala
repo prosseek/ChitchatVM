@@ -62,4 +62,15 @@ class Stack {
     if (sp > 0) stack(sp - 1)
     else null
   }
+
+  def getBinaryIntValues = {
+    val val1:Int = pop().asInstanceOf[Int]
+    val val2:Int = pop().asInstanceOf[Int]
+    (val1, val2)
+  }
+  def getBinaryDoubleValues = {
+    val val1:Double = pop().asInstanceOf[Double]
+    val val2:Double = pop().asInstanceOf[Double]
+    (val1, val2)
+  }
 }
