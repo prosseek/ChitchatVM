@@ -6,8 +6,7 @@ import vm.util.Geolocation
 
 import scala.util.control.Breaks._
 
-trait MacroCommand {
-
+trait Macro {
   def inrange(cmd:Seq[String], registers:Registers) = {
     val stack = registers.stack
     val type_of_operation = cmd(1).toInt
@@ -33,6 +32,17 @@ trait MacroCommand {
 
   def abs(cmd:Seq[String], registers:Registers) = {
     val stack = registers.stack
+
+    def autoCoversionToDegree(input:Any) = {
+      if (input.isInstanceOf[List[_]])
+        Geolocation.dd2d(input.asInstanceOf[List[Int]])
+      else if (input.isInstanceOf[Double])
+        input.asInstanceOf[Double]
+      else
+        throw new RuntimeException(s"Location should be double or List[Int]")
+
+    }
+
     cmd(1).toString() match {
       /*
         read latitude
@@ -41,11 +51,11 @@ trait MacroCommand {
         push [-97, 47, 21, 83]
        */
       case "location" => {
-        val long2 = stack.pop().asInstanceOf[List[Int]]
-        val lat2 = stack.pop().asInstanceOf[List[Int]]
-        val long1 = stack.pop().asInstanceOf[List[Int]]
-        val lat1 = stack.pop().asInstanceOf[List[Int]]
-        val result = Geolocation.getDistance(la1 = lat1, lo1 = long1, la2 = lat2, lo2 = long2)
+        val long2 = autoCoversionToDegree(stack.pop())
+        val lat2 = autoCoversionToDegree(stack.pop())
+        val long1 = autoCoversionToDegree(stack.pop())
+        val lat1 = autoCoversionToDegree(stack.pop())
+        val result = Geolocation.getDistance(lat1 = lat1, long1 = long1, lat2 = lat2, long2 = long2)
         stack.push(result)
       }
     }

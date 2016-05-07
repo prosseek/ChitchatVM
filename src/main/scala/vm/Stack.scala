@@ -2,9 +2,6 @@ package vm
 
 import scala.collection.mutable.ListBuffer
 
-
-
-
 class Stack {
 
   // http://stackoverflow.com/questions/9542126/scala-is-a-string-parseable-as-a-double

@@ -3,12 +3,12 @@ package vm
 import summary.Summary
 
 class ChitchatVM(val summary:Summary = null)
-            extends command.MacroCommand
+            extends command.Macro
             with command.Stack
             with command.FunctionCall
             with command.Jump
             with command.Expression
-            with command.SystemCommand {
+            with command.System {
   // stack
   val stack = new Stack()
   val registers = new Registers(stack=stack)
@@ -23,7 +23,7 @@ class ChitchatVM(val summary:Summary = null)
       // todo: Everything now is integer version, for float version
       // we need to make the same implementation with different type (double)
       case "inrange" => inrange(cmd=cmd, registers=registers)
-      case "here" => here()
+      case "here" => here(registers)
       // function_call 123 "p1" "p2" "p3" <- 123 is the location of a function
       case x if (x == "f" || x == "function_call") => function_call(cmd, registers)
       case x if (x == "function_call_stack" || x == "f2") => function_call_stack(cmd, registers)

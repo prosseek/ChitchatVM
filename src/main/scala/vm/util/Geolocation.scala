@@ -43,19 +43,19 @@ object Geolocation {
   /**
     * http://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
     *
-    * @param la1
-    * @param lo1
-    * @param la2
-    * @param lo2
+    * @param lat1
+    * @param long1
+    * @param lat2
+    * @param long2
     * @return
     */
-  def getDistance(la1:List[Int], lo1:List[Int], la2:List[Int], lo2:List[Int]) = {
+  def getDistance(lat1:Double, long1:Double, lat2:Double, long2:Double) = {
     def deg2rad(deg:Double) = deg * (Math.PI/180.0)
 
-    val lat1 = dd2d(la1)
-    val long1 = dd2d(lo1)
-    val lat2 = dd2d(la2)
-    val long2 = dd2d(lo2)
+//    val lat1 = dd2d(la1)
+//    val long1 = dd2d(lo1)
+//    val lat2 = dd2d(la2)
+//    val long2 = dd2d(lo2)
 
     var R = 6371.0; // Radius of the earth in km
     var dLat = deg2rad(lat2-lat1);  // deg2rad below

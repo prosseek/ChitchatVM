@@ -1,9 +1,6 @@
 package vm.command
 
-import summary.Summary
-import vm.{Registers, Stack}
-
-import scala.collection.mutable.ListBuffer
+import vm.Registers
 
 trait Stack {
   def push(cmd:Seq[String], registers:Registers) = {

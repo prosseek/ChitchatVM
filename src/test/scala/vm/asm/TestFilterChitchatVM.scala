@@ -1,9 +1,9 @@
-package vm
+package vm.asm
 
+import api.API
 import file.Reader
 import org.scalatest.FunSuite
-import api.API
-import scala.collection.mutable.ListBuffer
+import vm.ChitchatVM
 
 class TestFilterChitchatVM extends FunSuite {
   val simpleJson =
