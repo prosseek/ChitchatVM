@@ -7,4 +7,9 @@ class TestSystem extends FunSuite {
     val (lat, long) = System.here()
     println(lat, long)
   }
+
+  test ("test here and now") {
+    val res = System.now()
+    println(res.mkString("[",":","]"))
+  }
 }

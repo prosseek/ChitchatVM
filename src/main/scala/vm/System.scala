@@ -2,6 +2,8 @@ package vm
 
 import sys.process._
 import java.nio.file.{Files, Paths}
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 /**
   * Created by smcho on 5/7/16.
@@ -20,5 +22,11 @@ object System {
       val longitude = extractInfo(locationInformation(1))
       (latitude, longitude)
     }
+  }
+  def now() = {
+    val now = Calendar.getInstance().getTime()
+    val hourFormat = new SimpleDateFormat("y:M:d:H:K:m")
+    val result = hourFormat.format(now)
+    result.split(":").map(_.trim).map(_.toInt).toList
   }
 }
