@@ -52,6 +52,12 @@ class Stack {
     stack.remove(sp)
   }
 
+  def peek() = {
+    val value = pop()
+    push(value)
+    value
+  }
+
   def tos = {
     if (sp > 0) stack(sp - 1)
     else null

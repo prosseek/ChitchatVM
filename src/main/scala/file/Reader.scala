@@ -58,7 +58,7 @@ case class Reader(filePath:String = null) {
       if (Files.exists(Paths.get(filePath)))
         sourceCode = Source.fromFile(filePath).mkString("")
       else
-        throw new RuntimeException(s"No assembly file %{filePath}")
+        throw new RuntimeException(s"No assembly file ${filePath}")
     }
 
     // from input to intermediate

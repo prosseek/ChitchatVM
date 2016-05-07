@@ -85,6 +85,30 @@ class ChitchatVM(val summary:Summary = null)
       }
 
       // macro level
+      // todo: Everything now is integer version, for float version
+      // we need to make the same implementation with different type (double)
+      case "inrange" => {
+        val type_of_operation = cmd(1).toInt
+
+        // convert them into double
+        // as the comparision can be both double and int
+        val value = stack.pop().asInstanceOf[Int]
+        val value2 = stack.pop().asInstanceOf[Int]
+        val value1 = stack.pop().asInstanceOf[Int]
+        var result = false
+        type_of_operation match {
+          // v1 <= v <= v2
+          case 0 => if (value1 <= value && value <= value2) result = true
+          // v1 < v <= v2
+          case 1 => if (value1 < value && value <= value2) result = true
+          // v1 <= v < v2
+          case 2 => if (value1 <= value && value < value2) result = true
+          // v1 <= v <= v2
+          case 3 => if (value1 < value && value < value2) result = true
+        }
+        stack.push(result)
+      }
+
       // function_call 123 "p1" "p2" "p3" <- 123 is the location of a function
       case "function_call" => {
         val function_location = cmd(1).toInt
@@ -116,7 +140,7 @@ class ChitchatVM(val summary:Summary = null)
         // 1. reserve return value
         stack.push(0)
         // 2. push the parameters
-        params foreach {
+        params.reverse foreach {
           p => stack.pushFromParameter(registerValueToString(p))
         }
         // 3. link
@@ -163,7 +187,27 @@ class ChitchatVM(val summary:Summary = null)
           ip = address - 1
         }
       }
+      case "jmpnull" => {
+        if (null == stack.peek()) {
+          val address = registerValueToString(cmd(1)).toInt
+          ip = address - 1
+        }
+      }
       // Expression
+      case x if (x == "and" || x == "or") => {
+        val count = if (cmd.size < 1) 2 else cmd(1).toInt
+        val result = false
+
+        val booleans = ListBuffer[Boolean]()
+        for (i <- 0 until count) {
+          booleans += stack.pop().asInstanceOf[Boolean]
+        }
+        if (x == "and")
+          stack.push(booleans.forall(_ == true))
+        else
+          stack.push(booleans.exists(_ == true))
+      }
+
       case "cmp" => {
         val val1 = stack.pop()
         val val2= stack.pop()

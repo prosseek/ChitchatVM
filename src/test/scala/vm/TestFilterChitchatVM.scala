@@ -35,4 +35,19 @@ class TestFilterChitchatVM extends FunSuite {
     val res = vm.eval(code, null)
     assert(res == 0)
   }
+
+  test("correlated function test") {
+    val e1 =
+      """|{
+         |  "producename": "apple",
+         |  "price_i": 500
+         |}""".stripMargin
+    val fbf = API.create_fbf_summary(e1, Q = 4)
+    val r = Reader(testsourcesDir + "correlated_function.asm")
+    val code = r.assemble()
+
+    val vm = new ChitchatVM(fbf)
+    val res = vm.eval(code, null)
+    assert(res == true)
+  }
 }

@@ -1,2 +1,2 @@
-    allexists string age longitude  latitude date time
+    allexists string age longitude latitude date time
     stop
