@@ -8,14 +8,12 @@
     jpeekfalse END
     register event
 
-    #print "OK0"
     f ITER
     push_summary
 END:
     stop
 
 ITER:
-    #print "OK1"
     # i = 0
     # one local variable
     # i == bp + 2 -> first variable
@@ -45,19 +43,20 @@ START:
     load bp + 2
     push 1
     iadd
+
     store bp + 2
     load bp + 2
     pop temp
 
     read sensor temp
-    jfalse ENDLOOP
+    jpeekfalse ENDLOOP
     register sensor temp
     read value temp
-    jfalse ENDLOOP
+    jpeekfalse ENDLOOP
     register value temp
 
     jmp START
 ENDLOOP:
-    # remove two local variables
+    # remove a local variable
     pop
     r 0

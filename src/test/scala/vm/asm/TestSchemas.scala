@@ -93,20 +93,53 @@ class TestSchemas extends FunSuite {
     val case2 =
       """|{
         |  "name": "James",
+        |  "event": "Lets see",
+        |  "sensor0": "x",
+        |  "value0" : "100",
+        |  "sensor1": "y",
+        |  "value1" : "200"
+        |}""".stripMargin
+
+    val case3 =
+      """|{
+        |  "name": "James",
+        |  "event": "Lets see",
+        |  "sensor0": "x",
+        |  "value0" : "100",
+        |  "sensor1": "y",
+        |  "value1" : "200",
+        |  "sensor2": "z",
+        |  "value2" : "1200"
+        |}""".stripMargin
+
+    val case4 =
+      """|{
+        |  "name": "James",
         |  "event": "Lets see"
         |}""".stripMargin
 
     val fbfcase1 = API.create_fbf_summary(case1, Q = 4)
     val fbfcase2 = API.create_fbf_summary(case2, Q = 4)
+    val fbfcase3 = API.create_fbf_summary(case3, Q = 4)
+    val fbfcase4 = API.create_fbf_summary(case4, Q = 4)
 
     val r = Reader(testsourcesDir + "classic_rep.asm")
     val code = r.assemble()
 
     var vm = new ChitchatVM(fbfcase1)
     var res = vm.eval(code, null)
+
     assert(res.toString == "Map(event -> Lets see, sensor0 -> x, name -> James, value0 -> 100)")
 
     vm = new ChitchatVM(fbfcase2)
+    res = vm.eval(code, null)
+    assert(res.toString == "Map(sensor1 -> y, value1 -> 200, event -> Lets see, sensor0 -> x, name -> James, value0 -> 100)")
+
+    vm = new ChitchatVM(fbfcase3)
+    res = vm.eval(code, null)
+    assert(res.toString == "Map(sensor1 -> y, value1 -> 200, event -> Lets see, sensor0 -> x, name -> James, sensor2 -> z, value0 -> 100, value2 -> 1200)")
+
+    vm = new ChitchatVM(fbfcase4)
     res = vm.eval(code, null)
     assert(res == false)
   }
