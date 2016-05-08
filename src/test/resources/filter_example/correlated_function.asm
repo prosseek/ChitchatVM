@@ -1,8 +1,8 @@
 # first
     read producename
-    jmpnull END
+    jpeekfalse END
     read price_i
-    jmpnull END
+    jpeekfalse END
     function_call_stack priceMatch 2
 END:
     stop

@@ -5,7 +5,7 @@ import file.Reader
 import org.scalatest.FunSuite
 import vm.ChitchatVM
 
-class TestFilterChitchatVM extends FunSuite {
+class TestCorrelatedFilters extends FunSuite {
   val simpleJson =
     """|{
        |  "string": "James",
@@ -20,12 +20,12 @@ class TestFilterChitchatVM extends FunSuite {
   val fbf = API.create_fbf_summary(simpleJson, Q = 4)
 
   test("correlated test") {
-    val r = Reader(testsourcesDir + "correlated.asm")
+    val r = Reader(testsourcesDir + "correlated_correct.asm")
     val code = r.assemble()
 
     val vm = new ChitchatVM(fbf)
     val res = vm.eval(code, null)
-    assert(res == 1)
+    assert(res == true)
   }
   test("correlated wrong test") {
     val r = Reader(testsourcesDir + "correlated_wrong.asm")
@@ -33,15 +33,15 @@ class TestFilterChitchatVM extends FunSuite {
 
     val vm = new ChitchatVM(fbf)
     val res = vm.eval(code, null)
-    assert(res == 0)
+    assert(res == false)
   }
 
   test("correlated function test") {
     val e1 =
       """|{
-         |  "producename": "apple",
-         |  "price_i": 500
-         |}""".stripMargin
+        |  "producename": "apple",
+        |  "price_i": 500
+        |}""".stripMargin
     val fbf = API.create_fbf_summary(e1, Q = 4)
     val r = Reader(testsourcesDir + "correlated_function.asm")
     val code = r.assemble()
@@ -49,14 +49,5 @@ class TestFilterChitchatVM extends FunSuite {
     val vm = new ChitchatVM(fbf)
     val res = vm.eval(code, null)
     assert(res == true)
-  }
-
-  test("situational filter test") {
-    val r = Reader(testsourcesDir + "situational.asm")
-    val code = r.assemble()
-
-    val vm = new ChitchatVM(fbf)
-    val res = vm.eval(code, null)
-    assert(res == false)
   }
 }

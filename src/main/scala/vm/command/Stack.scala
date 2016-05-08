@@ -20,7 +20,8 @@ trait Stack {
       registers.storeToRegister(cmd(1), res)
     }
   }
-  def loadStore(x:String, cmd:Seq[String], registers:Registers) = {
+  def loadStore(cmd:Seq[String], registers:Registers) = {
+    val command = cmd(0)
     val register_value = registers.registerValueToString(cmd(1))
     var address = register_value.toInt
     val stack = registers.stack
@@ -34,7 +35,7 @@ trait Stack {
         case _ => throw new RuntimeException(s"only +/- operator allowed not ${operator}")
       }
     }
-    if (x == "store") {
+    if (command == "store") {
       val value = stack.pop()
       stack.stack(address) = value
     }

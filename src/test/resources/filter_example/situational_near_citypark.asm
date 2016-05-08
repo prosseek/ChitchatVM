@@ -3,9 +3,9 @@ END:
     stop
 nearCityPark:
     read latitude
-    jmpnull END
+    jpeekfalse END
     read longitude
-    jmpnull END
+    jpeekfalse END
     push [30, 25, 1, 74]
     push [-97, 47, 21, 83]
     abs location

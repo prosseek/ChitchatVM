@@ -18,7 +18,7 @@ class ChitchatVM(val summary:Summary = null)
       // stack command
       case "push" => push(cmd, registers)
       case "pop" => pop(cmd, registers)
-      case x if (x == "load" || x == "store") => loadStore(x, cmd = cmd, registers = registers)
+      case x if (x == "load" || x == "store") => loadStore(cmd = cmd, registers = registers)
       // macro level
       // todo: Everything now is integer version, for float version
       // we need to make the same implementation with different type (double)
@@ -39,17 +39,17 @@ class ChitchatVM(val summary:Summary = null)
       case "jmp" => jmp(cmd, registers)
       // load from stack and jump if it is false
       case "jfalse" => jfalse(cmd, registers)
-      case "jmpnull" => jmpnull(cmd, registers)
-      case "abs" => abs(cmd = cmd, registers = registers)
+      case x if (x == "jpeekfalse" || x == "jpf") => jpeekfalse(cmd, registers)
+      case x if (x == "abs" || x == "distance") => distance(cmd = cmd, registers = registers)
       // and 3 => all of the 3 values in the stack should be "true"
-      case x if (x == "and" || x == "or") => andOr(x, cmd, registers)
+      case x if (x == "and" || x == "or") => andOr(cmd, registers)
       case "cmp" => cmp(cmd, registers)
       // Work as integer
       // X (val2) < Y (val1)
-      case x if (x == "less" || x == "leq" || x == "greater" || x == "geq") => icmp(x, cmd, registers)
-      case x if (x == "fless" || x == "fleq" || x == "fgreater" || x == "fgeq") => fcmp(x, cmd, registers)
-      case x if (x == "iadd" || x == "isub" || x == "imul" || x == "idiv") => iarith(x, cmd, registers)
-      case x if (x == "fadd" || x == "fsub" || x == "fmul" || x == "fdiv") => farith(x, cmd, registers)
+      case x if (x == "less" || x == "leq" || x == "greater" || x == "geq") => icmp(cmd, registers)
+      case x if (x == "fless" || x == "fleq" || x == "fgreater" || x == "fgeq") => fcmp(cmd, registers)
+      case x if (x == "iadd" || x == "isub" || x == "imul" || x == "idiv") => iarith(cmd, registers)
+      case x if (x == "fadd" || x == "fsub" || x == "fmul" || x == "fdiv") => farith(cmd, registers)
       // utility - print
       case "print" => {
         println(registers.registerValueToString(cmd(1)))

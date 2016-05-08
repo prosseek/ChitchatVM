@@ -2,7 +2,7 @@ package vm.command
 
 import summary.Summary
 import vm.Registers
-import vm.util.Geolocation
+import vm.util.{Datetime, Geolocation}
 
 import scala.util.control.Breaks._
 
@@ -30,7 +30,7 @@ trait Macro {
     stack.push(result)
   }
 
-  def abs(cmd:Seq[String], registers:Registers) = {
+  def distance(cmd:Seq[String], registers:Registers) = {
     val stack = registers.stack
 
     def autoCoversionToDegree(input:Any) = {
@@ -58,19 +58,31 @@ trait Macro {
         val result = Geolocation.getDistance(lat1 = lat1, long1 = long1, lat2 = lat2, long2 = long2)
         stack.push(result)
       }
+      case "datetime" => {
+        val time1 = stack.pop().asInstanceOf[List[Int]]
+        val date1= stack.pop().asInstanceOf[List[Int]]
+        val time2 = stack.pop().asInstanceOf[List[Int]]
+        val date2 = stack.pop().asInstanceOf[List[Int]]
+        val result = Datetime.getDistance(date1 = date1, time1 = time1, date2 = date2, time2 = time2)
+
+        if (cmd(0) == "abs")
+          stack.push(Math.abs(result))
+        else
+          stack.push(result)
+      }
     }
   }
 
   def allexists(cmd:Seq[String], registers:Registers, summary:Summary) = {
     val stack = registers.stack
-    var result = 1 // be pessimistic
+    var result = true // be pessimistic
     if (summary != null) {
       breakable {
         cmd.slice(1, cmd.size) foreach {
           p => {
             val value = summary.get(p)
             if (value.isEmpty) {
-              result = 0
+              result = false
               break
             }
           }
@@ -78,7 +90,7 @@ trait Macro {
       }
       stack.push(result)
     } else {
-      stack.push(0) // no summary will return false
+      stack.push(false) // no summary will return false
     }
   }
 
@@ -88,10 +100,10 @@ trait Macro {
     if (summary != null) {
       val label = cmd(1)
       val value = summary.get(label)
-      if (value.isEmpty) stack.push(null)
+      if (value.isEmpty) stack.push(false)
       else stack.push(value.get)
     }
     else // maybe return something else
-      stack.push(null)
+      stack.push(false)
   }
 }

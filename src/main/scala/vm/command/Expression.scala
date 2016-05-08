@@ -5,7 +5,8 @@ import vm.Registers
 import scala.collection.mutable.ListBuffer
 
 trait Expression {
-  def andOr(x:String, cmd:Seq[String], registers:Registers) = {
+  def andOr(cmd:Seq[String], registers:Registers) = {
+    val command = cmd(0)
     val count = if (cmd.size < 1) 2 else cmd(1).toInt
     val result = false
     val stack = registers.stack
@@ -14,7 +15,7 @@ trait Expression {
     for (i <- 0 until count) {
       booleans += stack.pop().asInstanceOf[Boolean]
     }
-    if (x == "and")
+    if (command == "and")
       stack.push(booleans.forall(_ == true))
     else
       stack.push(booleans.exists(_ == true))
@@ -25,12 +26,12 @@ trait Expression {
     val val2= stack.pop()
     stack.push(val1 == val2)
   }
-  def icmp(x:String, cmd:Seq[String], registers:Registers) = {
+  def icmp(cmd:Seq[String], registers:Registers) = {
     val stack = registers.stack
     val val2 = stack.pop().asInstanceOf[Int]
     val val1 = stack.pop().asInstanceOf[Int]
     var result = false
-    x match {
+    cmd(0) match {
       case "less" => if (val1 < val2) result = true
       case "leq" => if (val1 <= val2) result = true
       case "greater" => if (val1 > val2) result = true
@@ -38,12 +39,12 @@ trait Expression {
     }
     stack.push(result)
   }
-  def fcmp(x:String, cmd:Seq[String], registers:Registers) = {
+  def fcmp(cmd:Seq[String], registers:Registers) = {
     val stack = registers.stack
     val val2 = stack.pop().asInstanceOf[Double]
     val val1= stack.pop().asInstanceOf[Double]
     var result = false
-    x match  {
+    cmd(0) match  {
       case "fless"    => if (val1 < val2) result = true
       case "fleq"     => if (val1 <= val2) result = true
       case "fgreater" => if (val1 > val2) result = true
@@ -51,10 +52,10 @@ trait Expression {
     }
     stack.push(result)
   }
-  def iarith(x:String, cmd:Seq[String], registers:Registers) = {
+  def iarith(cmd:Seq[String], registers:Registers) = {
     val stack = registers.stack
     val (val1, val2) = stack.getBinaryIntValues
-    x match {
+    cmd(0) match {
       case "iadd" => stack.push(val1 + val2)
       case "isub" => stack.push(val1 - val2)
       case "imul" => stack.push(val1 * val2)
@@ -64,10 +65,10 @@ trait Expression {
       }
     }
   }
-  def farith(x:String, cmd:Seq[String], registers:Registers) = {
+  def farith(cmd:Seq[String], registers:Registers) = {
     val stack = registers.stack
     val (val1, val2) = stack.getBinaryDoubleValues
-    x match {
+    cmd(0) match {
       case "fadd" => stack.push(val1 + val2)
       case "fsub" => stack.push(val1 - val2)
       case "fmul" => stack.push(val1 * val2)
