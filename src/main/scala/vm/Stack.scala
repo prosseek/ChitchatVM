@@ -8,6 +8,7 @@ class Stack {
   case class ParseOp[T](op: String => T)
   implicit val popDouble = ParseOp[Double](_.toDouble)
   implicit val popInt = ParseOp[Int](_.toInt)
+  implicit val popBoolean = ParseOp[Boolean](_.toBoolean)
   def parse[T: ParseOp](s: String) = try { Some(implicitly[ParseOp[T]].op(s)) }
   catch {case _ : Throwable => None}
 
@@ -26,6 +27,7 @@ class Stack {
   def pushFromParameter(value:String) = {
     def parseValue(value:String) = {
       if (parse[Int](value).isDefined) parse[Int](value).get
+      else if (parse[Boolean](value).isDefined) parse[Boolean](value).get
       else if (parse[Double](value).isDefined) parse[Double](value).get
       else value
     }

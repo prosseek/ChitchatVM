@@ -8,10 +8,12 @@ class ChitchatVM(val summary:Summary = null)
             with command.FunctionCall
             with command.Jump
             with command.Expression
+            with command.ATN
             with command.System {
   // stack
   val stack = new Stack()
-  val registers = new Registers(stack=stack)
+  val summaryMap = collection.mutable.Map[String, Any]()
+  val registers = new Registers(stack=stack, summaryMap = summaryMap)
 
   def process(cmd: Seq[String]) = {
     cmd(0) match {
@@ -54,6 +56,9 @@ class ChitchatVM(val summary:Summary = null)
       case "print" => {
         println(registers.registerValueToString(cmd(1)))
       }
+      // ATN
+      case "push_summary" => push_summary(cmd, registers)
+      case "register" => register(cmd, registers)
     }
     registers.ip += 1 // next command including the jmp command
   }
@@ -99,7 +104,7 @@ class ChitchatVM(val summary:Summary = null)
     * ==== Example ====
     * {{{
     *   (A) (B) means the input is sepparated into A/B
-    *
+    *   print [a, b, c, d] -> (print) (a:b:c:d)
     *   print "hello, world" -> (print) (hello, world)
     *   mov a b c -> (mov)(a)(b)(c)
     * }}}

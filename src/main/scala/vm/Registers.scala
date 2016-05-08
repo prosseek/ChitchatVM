@@ -1,6 +1,6 @@
 package vm
 
-class Registers(var ip:Int = -1, var temp:Any = -1, val stack:Stack) {
+class Registers(var ip:Int = -1, var temp:Any = -1, val stack:Stack, val summaryMap:collection.mutable.Map[String, Any]) {
   /**
     * Returns the register value with firstCommand input as name
     * When there is no matching name, the input is returned.

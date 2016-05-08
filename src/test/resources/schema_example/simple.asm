@@ -1,9 +1,13 @@
 # (a b c)
     read a
-    jmpnull END
+    jpeekfalse END
+    register a
     read b
-    jmpnull END
+    jpeekfalse END
+    register b
     read c
-    jmpnull END
+    jpeekfalse END
+    register c
+    push_summary
 END:
     stop

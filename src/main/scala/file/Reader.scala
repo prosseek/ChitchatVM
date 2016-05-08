@@ -52,7 +52,10 @@ case class Reader(filePath:String = null) {
       * @return
       */
     def replaceLabel(code:String) = {
-      (code /: labelToLine) ((acc, input) => acc.replace(input._1, input._2.toString))
+      // only the whole string should match
+      // "xyz abcdef abc".replaceAll("\\babc\\b", "9")
+      // "xyz abcdef 9"
+      (code /: labelToLine) ((acc, input) => acc.replaceAll("\\b" + input._1 + "\\b", input._2.toString))
     }
 
     var sourceCode = src

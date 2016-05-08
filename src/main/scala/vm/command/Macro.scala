@@ -98,7 +98,7 @@ trait Macro {
     val stack = registers.stack
 
     if (summary != null) {
-      val label = cmd(1)
+      val label = cmd(1) + (if (cmd.length > 2) registers.registerValueToString(cmd(2)) else "")
       val value = summary.get(label)
       if (value.isEmpty) stack.push(false)
       else stack.push(value.get)

@@ -9,10 +9,13 @@ trait Jump {
   }
   def jfalse(cmd:Seq[String], registers:Registers) = {
     val stack = registers.stack
-    val result = stack.pop().asInstanceOf[Boolean]
-    if (result == false) {
-      val address = registers.registerValueToString(cmd(1)).toInt
-      registers.ip = address - 1
+
+    val result = stack.pop()
+    if (result.isInstanceOf[Boolean]) {
+      if (result == false) {
+        val address = registers.registerValueToString(cmd(1)).toInt
+        registers.ip = address - 1
+      }
     }
   }
 
