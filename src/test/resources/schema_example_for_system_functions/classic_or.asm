@@ -12,6 +12,18 @@ _READ_TO_REG:
 _READ_TO_REG_END:
     return 1
 
+_READ_TO_REG_OR_FUNCTION_CALL:
+    load $bp - 1
+    dup
+    isstring
+    jtrue _CALL_READ_TO_REG
+
+_CALL_READ_TO_REG:
+    pop $temp
+    f _READ_TO_REG $temp
+_READ_TO_REG_OR_FUNCTION_CALL_END:
+    return 1
+
 _READ_TO_REG_OR:
     # store local variable
     # i == bp + 2 -> first local variable
@@ -50,7 +62,7 @@ _READ_TO_REG_OR_LOOP:
     # get parameter
     load $bp - $temp
     pop $temp
-    f _READ_TO_REG $temp
+    f _READ_TO_REG_OR_FUNCTION_CALL $temp
     jpeektrue _READ_TO_REG_OR_END
     # try again as the label is not in the summary
     # i += 1

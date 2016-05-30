@@ -1,7 +1,7 @@
 # -schema datetime = (date, time)
 # -schema location = (longitude, latitude)
 # -schema event = event | advertisement
-# -schema sender = (name, id?) | ("gchat id")
+# -schema sender = (name, id?) | "gchat id"
 # +schema buyQuery = (sender, event, datetime, location)
 
     function_call BUYQUERY

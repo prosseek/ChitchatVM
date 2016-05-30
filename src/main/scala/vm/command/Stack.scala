@@ -3,6 +3,13 @@ package vm.command
 import vm.Machine
 
 trait Stack {
+  def dup(cmd:Seq[String], registers:Machine) = {
+    val stack = registers.stack
+    val b = stack.pop()
+    stack.push(b)
+    stack.push(b)
+  }
+
   def swap(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     val t = stack.pop()

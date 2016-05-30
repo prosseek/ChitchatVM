@@ -21,6 +21,7 @@ class ChitchatVM(val summary:Summary = null)
     cmd(0) match {
       // stack command
       case "swap" => swap(cmd, registers)
+      case "dup" => dup(cmd, registers)
       case "push" => push(cmd, registers)
       case "pop" => pop(cmd, registers)
       case x if (x == "load" || x == "store") => loadStore(cmd = cmd, registers = registers)
@@ -52,6 +53,7 @@ class ChitchatVM(val summary:Summary = null)
 
       // string
       case "concat" => concat(cmd, registers)
+      case "isstring" => isstring(cmd, registers)
       // Work as integer
       // X (val2) < Y (val1)
       case x if (x == "less" || x == "leq" || x == "greater" || x == "geq") => icmp(cmd, registers)

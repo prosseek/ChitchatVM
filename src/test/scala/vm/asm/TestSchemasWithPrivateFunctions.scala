@@ -30,7 +30,7 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
   test ("classic test - or") {
     // (name , event |advertisement , time ?)
     val case1 =
-      """|{
+     """|{
         |  "name": "X",
         |  "a": "James",
         |  "b": "Lets see",
@@ -48,7 +48,7 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
     assert(res.toString == "Map(a -> James, name -> X)")
 
     val case2 =
-      """|{
+     """|{
         |  "name": "X",
         |  "b": "Lets see",
         |  "c": "why",
@@ -61,7 +61,7 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
     assert(res.toString == "Map(b -> Lets see, name -> X)")
 
     val case3 =
-      """|{
+     """|{
         |  "name": "X",
         |  "c": "why",
         |  "d": "Hello"
@@ -73,9 +73,30 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
     assert(res.toString == "Map(name -> X, c -> why)")
   }
 
+  test ("classic test - or (a, b?) | c") {
+    // (name , event |advertisement , time ?)
+    val case1 =
+      """|{
+        |  "name": "X",
+        |  "a": "James",
+        |  "b": "Lets see",
+        |  "c": "why",
+        |  "d": "Hello"
+        |}""".stripMargin
+    "".stripMargin
+    val fbfcase1 = API.create_fbf_summary(case1, Q = 4)
+
+    val r = Assembler(testsourcesDir + "classic_or.asm")
+    val code = r.assemble()
+
+    var vm = new ChitchatVM(fbfcase1)
+    var res = vm.eval(code, null)
+    assert(res.toString == "Map(a -> James, name -> X)")
+  }
+
   test ("classic test - or - there is nothing matched") {
     val case4 =
-      """|{
+     """|{
         |  "name": "X",
         |  "e": "Hello"
         |}""".stripMargin
@@ -92,7 +113,7 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
   test ("classic test - option") {
     // (name , time ?)
     val case1 =
-      """|{
+     """|{
         |  "name": "James",
         |  "time": [10, 11]
         |}""".stripMargin
@@ -107,7 +128,7 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
     assert(res.toString == "Map(name -> James, time -> List(10, 11))")
 
     val case2 =
-      """|{
+     """|{
         |  "name": "James"
         |}""".stripMargin
 
@@ -119,11 +140,10 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
 
   test ("classic test - repetition") {
     val case1 =
-      """|{
+     """|{
         |  "sensor0": "x",
         |  "value0" : "100"
         |}""".stripMargin
-
 
     val fbfcase1 = API.create_fbf_summary(case1, Q = 4)
 
@@ -136,9 +156,7 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
     assert(res.toString == "Map(sensor0 -> x, value0 -> 100)")
 
     val case2 =
-      """|{
-        |  "name": "James",
-        |  "event": "Lets see",
+     """|{
         |  "sensor0": "x",
         |  "value0" : "100",
         |  "sensor1": "y",
@@ -146,9 +164,9 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
         |}""".stripMargin
 
     val fbfcase2 = API.create_fbf_summary(case2, Q = 4)
-    //vm = new ChitchatVM(fbfcase2)
-    //res = vm.eval(code, null)
-    //assert(res.toString == "Map(name -> James)")
+    vm = new ChitchatVM(fbfcase2)
+    res = vm.eval(code, null)
+    //println(res)
+    assert(res.toString == "Map(sensor1 -> y, value1 -> 200, sensor0 -> x, value0 -> 100)")
   }
-
 }
