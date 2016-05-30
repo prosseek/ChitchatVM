@@ -73,27 +73,6 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
     assert(res.toString == "Map(name -> X, c -> why)")
   }
 
-  test ("classic test - or (a, b?) | c") {
-    // (name , event |advertisement , time ?)
-    val case1 =
-      """|{
-        |  "name": "X",
-        |  "a": "James",
-        |  "b": "Lets see",
-        |  "c": "why",
-        |  "d": "Hello"
-        |}""".stripMargin
-    "".stripMargin
-    val fbfcase1 = API.create_fbf_summary(case1, Q = 4)
-
-    val r = Assembler(testsourcesDir + "classic_or.asm")
-    val code = r.assemble()
-
-    var vm = new ChitchatVM(fbfcase1)
-    var res = vm.eval(code, null)
-    assert(res.toString == "Map(a -> James, name -> X)")
-  }
-
   test ("classic test - or - there is nothing matched") {
     val case4 =
      """|{
@@ -108,6 +87,46 @@ class TestSchemasWithPrivateFunctions extends FunSuite {
     val vm = new ChitchatVM(fbfcase4)
     val res = vm.eval(code, null)
     assert(res == false)
+  }
+
+
+  test ("classic test - or (a, b?) | c") {
+    // (name , event |advertisement , time ?)
+    val case1 =
+      """|{
+        |  "a": "James",
+        |  "b": "Lets see",
+        |  "c": "why"
+        |}""".stripMargin
+    "".stripMargin
+    val fbfcase1 = API.create_fbf_summary(case1, Q = 4)
+
+    val r = Assembler(testsourcesDir + "classic_or_function_call.asm")
+    val code = r.assemble()
+
+    var vm = new ChitchatVM(fbfcase1)
+    var res = vm.eval(code, null)
+    assert(res.toString == "Map(c -> why)")
+  }
+
+  test ("classic test - or (a, b?) | c - but no c") {
+    // (name , event |advertisement , time ?)
+    val case1 =
+      """|{
+        |  "a": "James",
+        |  "b": "Lets see",
+        |  "d": "why"
+        |}""".stripMargin
+    "".stripMargin
+    val fbfcase1 = API.create_fbf_summary(case1, Q = 4)
+
+    val r = Assembler(testsourcesDir + "classic_or_function_call.asm")
+    val code = r.assemble()
+
+    var vm = new ChitchatVM(fbfcase1)
+    var res = vm.eval(code, null)
+    //println(res)
+    assert(res.toString == "Map(b -> Lets see, a -> James)")
   }
 
   test ("classic test - option") {

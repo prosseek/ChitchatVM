@@ -24,7 +24,7 @@ trait Strings {
     val pop = stack.pop().toString
 
     pop match {
-      case r"[_a-zA-Z][_a-zA-Z0-9]+" => stack.push(true)
+      case r"[_a-zA-Z][_a-zA-Z0-9]*" => stack.push(true)
       case _ => stack.push(false)
     }
   }

@@ -1,8 +1,6 @@
-# +schema sensors = (name , event | advertisement)
 # startup code
     jmp START
 
-# for a
 _READ_TO_REG:
     load $bp - 1
     pop $temp
@@ -11,6 +9,21 @@ _READ_TO_REG:
     register $temp
     push true
 _READ_TO_REG_END:
+    return 1
+
+_READ_TO_REG_OR_FUNCTION_CALL:
+    load $bp - 1
+    dup
+    isstring
+    jtrue _CALL_READ_TO_REG
+    # $temp is function (number)
+    pop $temp
+    f $temp
+    jmp _READ_TO_REG_OR_FUNCTION_CALL_END
+_CALL_READ_TO_REG:
+    pop $temp
+    f _READ_TO_REG $temp
+_READ_TO_REG_OR_FUNCTION_CALL_END:
     return 1
 
 _READ_TO_REG_OR:
@@ -51,7 +64,7 @@ _READ_TO_REG_OR_LOOP:
     # get parameter
     load $bp - $temp
     pop $temp
-    f _READ_TO_REG $temp
+    f _READ_TO_REG_OR_FUNCTION_CALL $temp
     jpeektrue _READ_TO_REG_OR_END
     # try again as the label is not in the summary
     # i += 1
@@ -66,7 +79,7 @@ _READ_TO_REG_OR_LOOP:
 _READ_TO_REG_OR_END_NO_RESULT:
     push false
 _READ_TO_REG_OR_END:
-    swap        
+    swap
     # pop off the local variable
     pop $temp
 
@@ -78,21 +91,38 @@ _READ_TO_REG_OR_END:
     pop  $temp
     return $temp
 
-## START
-# +schema sensors = (name , a | b | c | d)
+_READ_OPTION:
+    load $bp - 1
+    pop $temp
+    f _READ_TO_REG $temp
+    pop $temp
+    # always return true
+    push true
+    return 1
 
+SENSOR_1:
+    f _READ_TO_REG a
+    jpeekfalse SENSOR_1_END
+    pop $temp
+
+    f _READ_OPTION b
+    jpeekfalse SENSOR_1_END
+    pop $temp
+
+    push true
+SENSOR_1_END:   
+    return 0
+
+## START
+# +schema sensors = (a, b?) | c
+# (a, b?) should be compiled as a function
 START:
     function_call SENSORS
     stop
 
 SENSORS:
-    # name
-    f _READ_TO_REG name
-    jpeekfalse SENSORS_END
-    pop $temp
+    f _READ_TO_REG_OR SENSOR_1 c 2
 
-    # a | b | c | d
-    f _READ_TO_REG_OR d c b a 4
     jpeekfalse SENSORS_END
     pop $temp
 

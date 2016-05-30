@@ -17,7 +17,8 @@ trait FunctionCall {
     * @param registers
     */
   def function_call(cmd:Seq[String], registers:Machine) = {
-    val function_location = cmd(1).toInt
+    val interpreted = registers.registerValueToString(cmd(1))
+    val function_location = interpreted.toInt
     val params = cmd.slice(2, cmd.size)
     val stack = registers.stack
 
@@ -25,7 +26,7 @@ trait FunctionCall {
       p => stack.pushFromParameter(registers.registerValueToString(p))
     }
 
-    val newCommand = List(cmd(0).toString, cmd(1).toString, params.length.toString)
+    val newCommand = List(cmd(0).toString, interpreted, params.length.toString)
     function_call_stack(newCommand, registers)
   }
 
