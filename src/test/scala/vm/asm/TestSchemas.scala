@@ -1,7 +1,7 @@
 package vm.asm
 
 import api.API
-import file.Reader
+import file.Assembler
 import org.scalatest.FunSuite
 import vm.ChitchatVM
 
@@ -18,7 +18,7 @@ class TestSchemas extends FunSuite {
         |}""".stripMargin
 
     val fbf = API.create_fbf_summary(simpleJson, Q = 4)
-    val r = Reader(testsourcesDir + "simple.asm")
+    val r = Assembler(testsourcesDir + "simple.asm")
     val code = r.assemble()
 
     val vm = new ChitchatVM(fbf)
@@ -60,11 +60,12 @@ class TestSchemas extends FunSuite {
     val fbfcase3 = API.create_fbf_summary(case3, Q = 4)
     val fbfcase4 = API.create_fbf_summary(case4, Q = 4)
 
-    val r = Reader(testsourcesDir + "classic.asm")
+    val r = Assembler(testsourcesDir + "classic.asm")
     val code = r.assemble()
 
     var vm = new ChitchatVM(fbfcase1)
     var res = vm.eval(code, null)
+    //println(res.toString)
     assert(res.toString == "Map(event -> Lets see, name -> James, time -> List(10, 11))")
 
     vm = new ChitchatVM(fbfcase2)
@@ -80,50 +81,46 @@ class TestSchemas extends FunSuite {
     assert(res == false)
   }
 
-  test ("classic + test") {
+  test ("classic + repetition") {
     // (name , event , (sensor, value)+ )
     val case1 =
       """|{
-        |  "name": "James",
-        |  "event": "Lets see",
-        |  "sensor0": "x",
-        |  "value0" : "100"
-        |}""".stripMargin
+         |  "name": "James",
+         |  "event": "Lets see",
+         |  "sensor0": "x",
+         |  "value0" : "100"
+         |}""".stripMargin
 
     val case2 =
       """|{
-        |  "name": "James",
-        |  "event": "Lets see",
-        |  "sensor0": "x",
-        |  "value0" : "100",
-        |  "sensor1": "y",
-        |  "value1" : "200"
-        |}""".stripMargin
+         |  "name": "James",
+         |  "event": "Lets see",
+         |  "sensor0": "x",
+         |  "value0" : "100",
+         |  "sensor1": "y",
+         |  "value1" : "200"
+         |}""".stripMargin
 
     val case3 =
       """|{
-        |  "name": "James",
-        |  "event": "Lets see",
-        |  "sensor0": "x",
-        |  "value0" : "100",
-        |  "sensor1": "y",
-        |  "value1" : "200",
-        |  "sensor2": "z",
-        |  "value2" : "1200"
-        |}""".stripMargin
+         |  "name": "James",
+         |  "event": "Lets see",
+         |  "sensor0": "x",
+         |  "value0" : "100",
+         |  "sensor1": "y",
+         |  "value1" : "200",
+         |  "sensor2": "z",
+         |  "value2" : "1200"
+         |}""".stripMargin
 
-    val case4 =
-      """|{
-        |  "name": "James",
-        |  "event": "Lets see"
-        |}""".stripMargin
+
 
     val fbfcase1 = API.create_fbf_summary(case1, Q = 4)
     val fbfcase2 = API.create_fbf_summary(case2, Q = 4)
     val fbfcase3 = API.create_fbf_summary(case3, Q = 4)
-    val fbfcase4 = API.create_fbf_summary(case4, Q = 4)
 
-    val r = Reader(testsourcesDir + "classic_rep.asm")
+
+    val r = Assembler(testsourcesDir + "classic_rep.asm")
     val code = r.assemble()
 
     var vm = new ChitchatVM(fbfcase1)
@@ -137,10 +134,22 @@ class TestSchemas extends FunSuite {
 
     vm = new ChitchatVM(fbfcase3)
     res = vm.eval(code, null)
-    assert(res.toString == "Map(sensor1 -> y, value1 -> 200, event -> Lets see, sensor0 -> x, name -> James, sensor2 -> z, value0 -> 100, value2 -> 1200)")
+    assert(res.toString ==
+      "Map(sensor1 -> y, value1 -> 200, event -> Lets see, sensor0 -> x, name -> James, sensor2 -> z, value0 -> 100, value2 -> 1200)")
+}
 
-    vm = new ChitchatVM(fbfcase4)
-    res = vm.eval(code, null)
+test ("classic + repetition error condition") {
+    val case4 =
+      """|{
+         |  "name": "James",
+         |  "event": "Lets see"
+         |}""".stripMargin
+    val fbfcase4 = API.create_fbf_summary(case4, Q = 4)
+    val r = Assembler(testsourcesDir + "classic_rep.asm")
+    val code = r.assemble()
+
+    val vm = new ChitchatVM(fbfcase4)
+    val res = vm.eval(code, null)
     assert(res == false)
   }
 }

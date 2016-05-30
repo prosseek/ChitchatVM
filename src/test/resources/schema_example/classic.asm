@@ -1,27 +1,35 @@
-# (name , event | advertisement , time?)
+# +schema sensors = (name , event | advertisement , time?)
 
+    function_call SENSORS
+    stop
+
+SENSORS:
     read name
     jpeekfalse END
     register name
 
+# event | advertisement
     read event
-    jpeekfalse TRYALIAS1
+    jpeekfalse ADVERTISEMENT
     register event
-    jmp NEXT1
-TRYALIAS1:
-    pop temp
+    jmp ADVERTISEMENTEND
+ADVERTISEMENT:
+    pop $temp
     read advertisement
     jpeekfalse END
     register advertisement
-NEXT1:
+ADVERTISEMENTEND:
+
+# time?
     read time
-    jpeekfalse NEXT2
+    jpeekfalse TIMEEND
     register time
-    jmp NEXT3
-NEXT2:
-    pop temp
-NEXT3:
+    jmp TIMENEXT
+TIMEEND:
+    pop $temp
+TIMENEXT:
+
 # final - summing up the summary
     push_summary
 END:
-    stop
+    return 0

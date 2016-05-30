@@ -9,15 +9,18 @@ class ChitchatVM(val summary:Summary = null)
             with command.Jump
             with command.Expression
             with command.ATN
+            with command.Strings
+            with command.Debug
             with command.System {
   // stack
   val stack = new Stack()
   val summaryMap = collection.mutable.Map[String, Any]()
-  val registers = new Registers(stack=stack, summaryMap = summaryMap)
+  val registers = new Machine(stack=stack, summaryMap = summaryMap)
 
   def process(cmd: Seq[String]) = {
     cmd(0) match {
       // stack command
+      case "swap" => swap(cmd, registers)
       case "push" => push(cmd, registers)
       case "pop" => pop(cmd, registers)
       case x if (x == "load" || x == "store") => loadStore(cmd = cmd, registers = registers)
@@ -40,12 +43,15 @@ class ChitchatVM(val summary:Summary = null)
       // unconditional jump
       case "jmp" => jmp(cmd, registers)
       // load from stack and jump if it is false
-      case "jfalse" => jfalse(cmd, registers)
-      case x if (x == "jpeekfalse" || x == "jpf") => jpeekfalse(cmd, registers)
+      case x if (x == "jfalse" || x == "jtrue") => jtruefalse(cmd, registers)
+      case x if (x == "jpeekfalse" || x == "jpf" || x == "jpeektrue" || x == "jpt") => jpeektruefalse(cmd, registers)
       case x if (x == "abs" || x == "distance") => distance(cmd = cmd, registers = registers)
       // and 3 => all of the 3 values in the stack should be "true"
       case x if (x == "and" || x == "or") => andOr(cmd, registers)
       case "cmp" => cmp(cmd, registers)
+
+      // string
+      case "concat" => concat(cmd, registers)
       // Work as integer
       // X (val2) < Y (val1)
       case x if (x == "less" || x == "leq" || x == "greater" || x == "geq") => icmp(cmd, registers)
@@ -59,6 +65,12 @@ class ChitchatVM(val summary:Summary = null)
       // ATN
       case "push_summary" => push_summary(cmd, registers)
       case "register" => register(cmd, registers)
+
+      // DEBUGGING
+      case "debug"  => debug(cmd, registers)
+      case "debug1" => debug1(cmd, registers)
+      case "debug2" => debug2(cmd, registers)
+      case "debug3" => debug3(cmd, registers)
     }
     registers.ip += 1 // next command including the jmp command
   }
@@ -75,10 +87,10 @@ class ChitchatVM(val summary:Summary = null)
     *  2. the ip points outside the code sequence.
     *
     * @param code
-    * @param summary
+    * @param summary2
     * @return
     */
-  def eval(code:Seq[String], summary:Summary) = {
+  def eval(code:Seq[String], summary2:Summary = null) = {
     // initial condition
     registers.ip = 0
     var proceed = true
@@ -91,7 +103,7 @@ class ChitchatVM(val summary:Summary = null)
         val c = code(registers.ip)
         if (c.startsWith("stop"))
           proceed = false
-        else evalCommand(c, summary)
+        else evalCommand(c, if (summary2 == null) summary else summary2)
       }
     }
     stack.tos

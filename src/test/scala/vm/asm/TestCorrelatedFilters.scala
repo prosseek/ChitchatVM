@@ -1,7 +1,7 @@
 package vm.asm
 
 import api.API
-import file.Reader
+import file.Assembler
 import org.scalatest.FunSuite
 import vm.ChitchatVM
 
@@ -20,7 +20,7 @@ class TestCorrelatedFilters extends FunSuite {
   val fbf = API.create_fbf_summary(simpleJson, Q = 4)
 
   test("correlated test") {
-    val r = Reader(testsourcesDir + "correlated_correct.asm")
+    val r = Assembler(testsourcesDir + "correlated_correct.asm")
     val code = r.assemble()
 
     val vm = new ChitchatVM(fbf)
@@ -28,7 +28,7 @@ class TestCorrelatedFilters extends FunSuite {
     assert(res == true)
   }
   test("correlated wrong test") {
-    val r = Reader(testsourcesDir + "correlated_wrong.asm")
+    val r = Assembler(testsourcesDir + "correlated_wrong.asm")
     val code = r.assemble()
 
     val vm = new ChitchatVM(fbf)
@@ -43,7 +43,7 @@ class TestCorrelatedFilters extends FunSuite {
         |  "price_i": 500
         |}""".stripMargin
     val fbf = API.create_fbf_summary(e1, Q = 4)
-    val r = Reader(testsourcesDir + "correlated_function.asm")
+    val r = Assembler(testsourcesDir + "correlated_function.asm")
     val code = r.assemble()
 
     val vm = new ChitchatVM(fbf)

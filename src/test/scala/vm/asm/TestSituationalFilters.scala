@@ -1,7 +1,7 @@
 package vm.asm
 
 import api.API
-import file.Reader
+import file.Assembler
 import org.scalatest.FunSuite
 import vm.ChitchatVM
 
@@ -21,7 +21,7 @@ class TestSituationalFilters extends FunSuite
   val fbf = API.create_fbf_summary(simpleJson, Q = 4)
 
   test("situational filter near_citypark test") {
-    val r = Reader(testsourcesDir + "situational_near_citypark.asm")
+    val r = Assembler(testsourcesDir + "situational_near_citypark.asm")
     val code = r.assemble()
 
     val vm = new ChitchatVM(fbf)
@@ -29,7 +29,7 @@ class TestSituationalFilters extends FunSuite
     assert(res == false)
   }
   test("situational filter partytime test") {
-    val r = Reader(testsourcesDir + "situational_partytime.asm")
+    val r = Assembler(testsourcesDir + "situational_partytime.asm")
     val code = r.assemble()
 
     val vm = new ChitchatVM(fbf)

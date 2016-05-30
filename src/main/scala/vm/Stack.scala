@@ -67,6 +67,7 @@ class Stack {
     val val2:Int = pop().asInstanceOf[Int]
     (val1, val2)
   }
+
   def getBinaryDoubleValues = {
     val val1:Double = pop().asInstanceOf[Double]
     val val2:Double = pop().asInstanceOf[Double]

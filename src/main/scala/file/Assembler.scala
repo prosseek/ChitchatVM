@@ -5,7 +5,7 @@ import java.nio.file.{Files, Paths}
 import scala.collection.mutable.{ListBuffer, Map => MMap}
 import scala.io.Source
 
-case class Reader(filePath:String = null) {
+case class Assembler(filePath:String = null) {
 
   /**
     * returns a list of string that replaces labels into code position
@@ -59,7 +59,7 @@ case class Reader(filePath:String = null) {
     }
 
     var sourceCode = src
-    if (src == null) {
+    if (sourceCode == null) {
       if (Files.exists(Paths.get(filePath)))
         sourceCode = Source.fromFile(filePath).mkString("")
       else

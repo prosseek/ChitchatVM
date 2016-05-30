@@ -1,5 +1,9 @@
 # (name , event , (sensor, value)+ )
 
+    function_call SENSORS
+    stop
+
+SENSORS:
     read name
     jpeekfalse END
     register name
@@ -9,10 +13,14 @@
     register event
 
     f ITER
+    jpeekfalse END
+    pop $temp
+
     push_summary
 END:
-    stop
+    return 0
 
+# (sensor, value)+
 ITER:
     # i = 0
     # one local variable
@@ -21,18 +29,17 @@ ITER:
 
     # assignment i = 0
     push 0
-    store bp + 2
+    store $bp + 2
 
     # there should be at least one sensor data
-    load bp + 2
-    pop temp
-    read sensor temp
-    jpeekfalse END
-    register sensor temp
-    read value temp
-    jpeekfalse END
-    register value temp
-
+    load $bp + 2
+    pop $temp
+    read sensor $temp
+    jpeekfalse ERRORENDLOOP
+    register sensor $temp
+    read value $temp
+    jpeekfalse ERRORENDLOOP
+    register value $temp
 START:
     # while (true)
     #   i += 1
@@ -40,22 +47,28 @@ START:
     #   read value  i
 
     # i = i + 1
-    load bp + 2
+    load $bp + 2
     push 1
     iadd
 
-    store bp + 2
-    load bp + 2
-    pop temp
+    store $bp + 2
+    load $bp + 2
+    pop $temp
 
-    read sensor temp
+    read sensor $temp
     jpeekfalse ENDLOOP
-    register sensor temp
-    read value temp
+    register sensor $temp
+
+    read value $temp
     jpeekfalse ENDLOOP
-    register value temp
+    register value $temp
 
     jmp START
+
+ERRORENDLOOP:
+    # false - local_variable - ... (before in stack)
+    # local_variable - false - ... (after in stack)
+    swap
 ENDLOOP:
     # remove a local variable
     pop

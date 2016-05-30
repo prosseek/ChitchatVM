@@ -1,13 +1,13 @@
 package vm.command
 
 import summary.Summary
-import vm.Registers
+import vm.Machine
 import vm.util.{Datetime, Geolocation}
 
 import scala.util.control.Breaks._
 
 trait Macro {
-  def inrange(cmd:Seq[String], registers:Registers) = {
+  def inrange(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     val type_of_operation = cmd(1).toInt
 
@@ -30,7 +30,7 @@ trait Macro {
     stack.push(result)
   }
 
-  def distance(cmd:Seq[String], registers:Registers) = {
+  def distance(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
 
     def autoCoversionToDegree(input:Any) = {
@@ -40,7 +40,6 @@ trait Macro {
         input.asInstanceOf[Double]
       else
         throw new RuntimeException(s"Location should be double or List[Int]")
-
     }
 
     cmd(1).toString() match {
@@ -73,7 +72,7 @@ trait Macro {
     }
   }
 
-  def allexists(cmd:Seq[String], registers:Registers, summary:Summary) = {
+  def allexists(cmd:Seq[String], registers:Machine, summary:Summary) = {
     val stack = registers.stack
     var result = true // be pessimistic
     if (summary != null) {
@@ -94,11 +93,13 @@ trait Macro {
     }
   }
 
-  def read(cmd:Seq[String], registers:Registers, summary:Summary) = {
+  def read(cmd:Seq[String], registers:Machine, summary:Summary) = {
     val stack = registers.stack
 
     if (summary != null) {
-      val label = cmd(1) + (if (cmd.length > 2) registers.registerValueToString(cmd(2)) else "")
+      // for the cmd(1) - process the register load case such as "$temp"
+      // for the cmd(2) - process the iterative case such as "read sensor $temp"
+      val label = registers.registerValueToString(cmd(1)) + (if (cmd.length > 2) registers.registerValueToString(cmd(2)) else "")
       val value = summary.get(label)
       if (value.isEmpty) stack.push(false)
       else stack.push(value.get)

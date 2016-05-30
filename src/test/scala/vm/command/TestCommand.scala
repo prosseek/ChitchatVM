@@ -1,6 +1,6 @@
 package vm.command
 
-import file.Reader
+import file.Assembler
 import org.scalatest.FunSuite
 import vm.ChitchatVM
 
@@ -15,7 +15,7 @@ class TestCommand extends FunSuite {
   }
 
   test("arith file test") {
-    val r = Reader(testsourcesDir + "arith.asm")
+    val r = Assembler(testsourcesDir + "arith.asm")
     val vm = new ChitchatVM
     val code = r.assemble()
     val res = vm.eval(code, null)
@@ -23,14 +23,14 @@ class TestCommand extends FunSuite {
   }
 
   test("function call test") {
-    val r = Reader(testsourcesDir + "function_call.asm")
+    val r = Assembler(testsourcesDir + "function_call.asm")
     val vm = new ChitchatVM
     val code = r.assemble()
     val res = vm.eval(code, null)
     assert(res == 90)
   }
   test("function call stack test") {
-    val r = Reader(testsourcesDir + "function_call2.asm")
+    val r = Assembler(testsourcesDir + "function_call2.asm")
     val vm = new ChitchatVM
     val code = r.assemble()
     val res = vm.eval(code, null)
@@ -38,14 +38,14 @@ class TestCommand extends FunSuite {
   }
 
   test("if test") {
-    val r = Reader(testsourcesDir + "if.asm")
+    val r = Assembler(testsourcesDir + "if.asm")
     val vm = new ChitchatVM
     val code = r.assemble()
     val res = vm.eval(code, null)
   }
 
   test("loop test") {
-    val r = Reader(testsourcesDir + "loop.asm")
+    val r = Assembler(testsourcesDir + "loop.asm")
     val vm = new ChitchatVM
     val code = r.assemble()
     val res = vm.eval(code, null)

@@ -1,6 +1,6 @@
 package vm.command
 
-import vm.Registers
+import vm.Machine
 
 import scala.collection.mutable.ListBuffer
 
@@ -10,27 +10,36 @@ trait FunctionCall {
     stack.bp = (stack.sp - 1) // TOS is sp - 1, and it's also bp
   }
 
-  def function_call(cmd:Seq[String], registers:Registers) = {
+  /**
+    * Invoke function in cmd(1) with parameters from a parameter
+    *
+    * @param cmd
+    * @param registers
+    */
+  def function_call(cmd:Seq[String], registers:Machine) = {
     val function_location = cmd(1).toInt
     val params = cmd.slice(2, cmd.size)
     val stack = registers.stack
 
-    // 1. reserve return value
-    stack.push(0)
-    // 2. push the parameters
     params foreach {
       p => stack.pushFromParameter(registers.registerValueToString(p))
     }
-    // 3. link
-    link(stack)
-    // 4. push next ip
-    stack.push(registers.ip + 1)
-    // 5. jmp to the location
-    registers.ip = function_location - 1 // later 1 is added
+
+    val newCommand = List(cmd(0).toString, cmd(1).toString, params.length.toString)
+    function_call_stack(newCommand, registers)
   }
-  def function_call_stack(cmd:Seq[String], registers:Registers) = {
+
+  /**
+    * Invoke function in cmd(1) with parameters in a stack
+    *
+    * @param cmd
+    * @param registers
+    */
+  def function_call_stack(cmd:Seq[String], registers:Machine) = {
     val function_location = cmd(1).toInt
-    val param_count = cmd(2).toInt
+
+    val iterpreted = registers.registerValueToString(cmd(2))
+    val param_count = iterpreted.toInt
     val stack = registers.stack
 
     // get all the parameters from stack
@@ -38,6 +47,7 @@ trait FunctionCall {
     for (i <- 0 until param_count) {
       params += stack.pop().toString()
     }
+    // We need to insert the return value before all the parameters
     // 1. reserve return value
     stack.push(0)
     // 2. push the parameters
@@ -52,9 +62,11 @@ trait FunctionCall {
     registers.ip = function_location - 1 // later 1 is added
   }
 
-  def return_from_function(cmd:Seq[String], registers:Registers) = {
+  def return_from_function(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
-    val number_of_params = cmd(1).toInt
+    val interpreted = registers.registerValueToString(cmd(1))
+
+    val number_of_params = interpreted.toInt
 
     // 1. copy the return value in temp to the RV
     val rv = stack.bp - (number_of_params + 1)

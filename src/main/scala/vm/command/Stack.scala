@@ -1,9 +1,17 @@
 package vm.command
 
-import vm.Registers
+import vm.Machine
 
 trait Stack {
-  def push(cmd:Seq[String], registers:Registers) = {
+  def swap(cmd:Seq[String], registers:Machine) = {
+    val stack = registers.stack
+    val t = stack.pop()
+    val b = stack.pop()
+    stack.push(t)
+    stack.push(b)
+  }
+
+  def push(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     // in encoding, the value should only be intgers
     if (cmd(1).contains(":")) {
@@ -13,14 +21,14 @@ trait Stack {
     else
       stack.pushFromParameter(registers.registerValueToString(cmd(1)))
   }
-  def pop(cmd:Seq[String], registers:Registers) = {
+  def pop(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     val res = stack.pop()
     if (cmd.length >= 2) {
       registers.storeToRegister(cmd(1), res)
     }
   }
-  def loadStore(cmd:Seq[String], registers:Registers) = {
+  def loadStore(cmd:Seq[String], registers:Machine) = {
     val command = cmd(0)
     val register_value = registers.registerValueToString(cmd(1))
     var address = register_value.toInt
@@ -29,9 +37,11 @@ trait Stack {
     // ex) load bp - 3
     if (cmd.length == 4) {
       val operator = cmd(2)
+      val offset = registers.registerValueToString(cmd(3))
+
       operator match {
-        case "+" => address += cmd(3).toInt
-        case "-" => address -= cmd(3).toInt
+        case "+" => address += offset.toInt
+        case "-" => address -= offset.toInt
         case _ => throw new RuntimeException(s"only +/- operator allowed not ${operator}")
       }
     }

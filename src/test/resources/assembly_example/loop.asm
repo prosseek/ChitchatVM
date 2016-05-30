@@ -13,28 +13,28 @@ MAIN:
 
     # assignment i = 0
     push 0
-    store bp + 2
+    store $bp + 2
 
     # assignment limit = 10
     push 10
-    store bp + 3
+    store $bp + 3
 START:
     # while (i < limit)
-    load bp + 2
-    load bp + 3
+    load $bp + 2
+    load $bp + 3
     less
     jfalse END
 
     # temp <- i
-    load bp + 2
-    pop temp
-    print temp
+    load $bp + 2
+    pop $temp
+    print $temp
 
     # i = i + 1
-    load bp + 2
+    load $bp + 2
     push 1
     iadd
-    store bp + 2
+    store $bp + 2
 
     jmp START
 END:

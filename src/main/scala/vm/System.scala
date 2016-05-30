@@ -5,9 +5,6 @@ import java.nio.file.{Files, Paths}
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-/**
-  * Created by smcho on 5/7/16.
-  */
 object System {
   def here() = {
     def extractInfo(str: String) = str.split(":")(1).trim.toDouble

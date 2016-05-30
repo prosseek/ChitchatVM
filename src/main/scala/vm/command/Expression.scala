@@ -1,11 +1,11 @@
 package vm.command
 
-import vm.Registers
+import vm.Machine
 
 import scala.collection.mutable.ListBuffer
 
 trait Expression {
-  def andOr(cmd:Seq[String], registers:Registers) = {
+  def andOr(cmd:Seq[String], registers:Machine) = {
     val command = cmd(0)
     val count = if (cmd.size < 1) 2 else cmd(1).toInt
     val result = false
@@ -20,13 +20,13 @@ trait Expression {
     else
       stack.push(booleans.exists(_ == true))
   }
-  def cmp(cmd:Seq[String], registers:Registers) = {
+  def cmp(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     val val1 = stack.pop()
     val val2= stack.pop()
     stack.push(val1 == val2)
   }
-  def icmp(cmd:Seq[String], registers:Registers) = {
+  def icmp(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     val val2 = stack.pop().asInstanceOf[Int]
     val val1 = stack.pop().asInstanceOf[Int]
@@ -39,7 +39,7 @@ trait Expression {
     }
     stack.push(result)
   }
-  def fcmp(cmd:Seq[String], registers:Registers) = {
+  def fcmp(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     val val2 = stack.pop().asInstanceOf[Double]
     val val1= stack.pop().asInstanceOf[Double]
@@ -52,7 +52,7 @@ trait Expression {
     }
     stack.push(result)
   }
-  def iarith(cmd:Seq[String], registers:Registers) = {
+  def iarith(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     val (val1, val2) = stack.getBinaryIntValues
     cmd(0) match {
@@ -65,7 +65,7 @@ trait Expression {
       }
     }
   }
-  def farith(cmd:Seq[String], registers:Registers) = {
+  def farith(cmd:Seq[String], registers:Machine) = {
     val stack = registers.stack
     val (val1, val2) = stack.getBinaryDoubleValues
     cmd(0) match {
