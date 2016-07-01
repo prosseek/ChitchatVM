@@ -1,6 +1,9 @@
+# value cityParkCenter(latitude, longitude) = { ...
+# situation nearCityPark() = |(latitude, longitude) - cityParkCenter| <= 5 _km
     f2 nearCityPark 0
 END:
     stop
+
 nearCityPark:
     read latitude
     jpeekfalse END

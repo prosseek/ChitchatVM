@@ -5,6 +5,24 @@ import vm.Machine
 import scala.collection.mutable.ListBuffer
 
 trait Expression {
+
+  def xor(cmd:Seq[String], registers:Machine) = {
+    val stack = registers.stack
+    val val1 = stack.pop().asInstanceOf[Boolean]
+    val val2= stack.pop().asInstanceOf[Boolean]
+    stack.push(val1 ^ val2)
+  }
+
+  def not(cmd:Seq[String], registers:Machine) = {
+    val stack = registers.stack
+    val val1 = stack.pop().asInstanceOf[Boolean]
+    stack.push(!val1)
+  }
+
+  //todo
+  // The implementation is N and/or operation
+  // Modify this to make only 2 input 1 output operation
+  // for multiple input operation, make another/new command
   def andOr(cmd:Seq[String], registers:Machine) = {
     val command = cmd(0)
     val count = if (cmd.size < 1) 2 else cmd(1).toInt

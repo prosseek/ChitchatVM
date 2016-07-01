@@ -6,6 +6,7 @@
     f2 partyTime 0
 END:
     stop
+
 partyTime:
     read time
     jpeekfalse END

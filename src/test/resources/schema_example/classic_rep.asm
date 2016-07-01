@@ -1,4 +1,4 @@
-# (name , event , (sensor, value)+ )
+# + schema x = (name , event , (sensor, value)+ )
 
     function_call SENSORS
     stop

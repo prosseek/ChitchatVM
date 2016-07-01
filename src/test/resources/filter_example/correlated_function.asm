@@ -1,6 +1,6 @@
 # correlation producePrice = (priceMatch(produceName, price))
 # function bool priceMatch(produceName, price) = {
-#  return ( produceName == "apple" && 0 <= price <= 1000 )
+#  return ( produceName == "apple" && price >=0 && price <= 1000 )
 # }
 
 # first
@@ -17,10 +17,15 @@ priceMatch:
     push "apple"
     cmp
 
-    push 0
-    push 1000
     load $bp - 1
-    inrange 0
+    push 0
+    geq
 
-    and 2
+    and
+
+    load $bp - 1
+    push 1000
+    leq
+
+    and
     return 2
